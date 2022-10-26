@@ -1,55 +1,95 @@
-class Usuario{ //Forma, anatomia del objeto - Como van a ser la Persona
-    constructor(nombre,apellido){ // Como se construye la persona
-        //Recibo nombre y apellido por parametro
-        this.nombre=nombre;
-        this.apellido=apellido; 
-        this.libros=[];
-        this.mascotas=[];
-    }
+const fs = require('fs');
 
-    //Metodo que devuelve el nombre completo
-    getFullName(){
-        console.log(`El nombre y apellido del usuario es ${this.nombre} ${this.apellido}`);
+class Container {
+  constructor() {}
+  getAll = async () => {
+    try {
+      const archive = await fs.promises.readFile('./productos.json', 'utf-8');
+      const products = JSON.parse(archive);
+      return products;
+    } catch (e) {
+      console.log(e);
     }
+  };
+  save = async (newProduct) => {
+    try {
+      const products = await this.getAll();
+      const id = products.length + 1;
+      newProduct.id = id;
+      products.push(newProduct);
 
-    //Recibe un nombre de mascota y lo agrega al array demascotas.
-    addMascota(nuevaMascota){
-        this.mascotas=[...this.mascotas, nuevaMascota]
-    }
+      const productsString = JSON.stringify(products);
 
-    //Retorna la cantidad de mascotas que tiene el usuario.
-    countMascotas(){
-        console.log(this.mascotas.length);
+      await fs.promises.writeFile('./productos.json', productsString);
+    } catch (e) {
+      console.log(e);
     }
+  };
+  getById = async (id) => {
+    try {
+      const readData = await fs.promises.readFile('./productos.json');
+      const newData = JSON.parse(readData);
+      const title = newData.find((title) => title.id == id);
+      if (title) {
+        return title;
+      } else {
+        console.log('Product Not Found');
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-    //Recibe un string 'nombre' y un string 'autor' y debe agregar un objeto: { nombre: String, autor: String } al array de libros.
-    addBook(nombre,autor){
-        this.libros=[...this.libros,{nombre:nombre, autor:autor}]
+  deleteById = async (id) => {
+    try {
+      const readData = await fs.promises.readFile('./productos.json');
+      const newData = JSON.parse(readData);
+      const title = newData.find((title) => title.id == id);
+      if (!title) {
+        console.log('ID Doesnt exists');
+      } else {
+        const filteredData = newData.filter((e) => e.id != id);
+        const dataJSON = JSON.stringify(filteredData);
+        await fs.promises.writeFile('./productos.json', dataJSON);
+
+        console.log('Product Deleted');
+      }
+    } catch (e) {
+      console.log(e);
     }
-    //Retorna un array con sólo los nombres del array de libros del usuario.
-    getBookNames(){
-        let nombreDeLibros=this.libros.map((e)=>e.nombre)
-        console.log(nombreDeLibros);
+  };
+  deleteAll = async () => {
+    try {
+      await fs.promises.writeFile('./productos.json', JSON.stringify([]));
+      console.log('All the products were deleted');
+    } catch (e) {
+      console.log(e);
     }
+  };
 }
 
-//Varible tipo usuario
-const usuario= new Usuario("Mauricio", "Monzón");
+async function start() {
+  const container1 = new Container();
+  //NEW PRODUCTS
+  await container1.save({
+    title: 'Llavero',
+    price: 100,
+    id: 7,
+  });
 
-//Agregando mascotas
-usuario.addMascota("Perro");
-usuario.addMascota("Gato");
+  await container1.save({
+    title: 'Caja',
+    price: 80,
+    id: 10,
+  });
+  //GET ALL THE PRODUCTS
+  console.log(await container1.getAll());
+  //GET BY ID
+  console.log(await container1.getById(2));
+  //DELETE BY ID
+  console.log(await container1.deleteById(4));
+  //DELETE ALL
+  //await container1.deleteAll();
+}
 
-//Agregando Libros
-usuario.addBook("El señor de las moscas","William Golding");
-usuario.addBook("Fundacion","Isaac Asimov");
-
-
-//Metodo devuelve la cantidad de mascotas
-usuario.countMascotas()
-
-//Metodo devuelve nombre de los libros
-usuario.getBookNames()
-
-//Metodo devuelve el nombre completo del usuario
-usuario.getFullName()
+start();
