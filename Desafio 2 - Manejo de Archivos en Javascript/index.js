@@ -74,22 +74,22 @@ async function start() {
     await container1.save({
         title: 'Llavero',
         price: 100,
-        id: 7,
+        id: 6,
     });
 
     await container1.save({
         title: 'Caja',
         price: 80,
-        id: 10,
+        id: 8,
     });
     //Obteniendo todos los productos
     console.log(await container1.getAll());
     //Producto por ID
-    console.log(await container1.getById(2));
+    console.log(await container1.getById(4));
     //Borrar por ID
-    console.log(await container1.deleteById(4));
+/*     console.log(await container1.deleteById(15)); */
     //Borrar todo
-    console.log(await container1.deleteAll());
+    //console.log(await container1.deleteAll());
 }
 
 start();
