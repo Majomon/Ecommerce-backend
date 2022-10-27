@@ -82,6 +82,12 @@ async function start() {
         price: 80,
         id: 8,
     });
+
+    await container1.save({
+        title: 'Remeras',
+        price: 800,
+        id: 9,
+    });
     //Obteniendo todos los productos
     console.log(await container1.getAll());
     //Producto por ID
